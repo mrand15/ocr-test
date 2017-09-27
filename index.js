@@ -2,24 +2,70 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   Text,
-  View
+  View,
+  TouchableOpacity,
 } from 'react-native';
+import Camera from 'react-native-camera';
+import RNTesseractOcr from 'react-native-tesseract-ocr';
 
 export default class ocrTest extends Component {
 
+  constructor () {
+    super();
+
+    this.state = {
+      ocrResult: null,
+    };
+  }
+
+  getText = (response) => {
+
+    debugger;
+
+    RNTesseractOcr.startOcr(response.path.replace('file://',''), 'LANG_ENGLISH')
+      .then((result) => {
+        debugger
+        this.setState({ ocrResult: result });
+        console.log("OCR Result: ", result);
+      })
+      .catch((err) => {
+        debugger;
+        console.log("OCR Error: ", err);
+      })
+      .done();
+  }
+
+  takePicture() {
+    const options = {};
+    //options.location = ...
+    this.camera.capture({metadata: options})
+      .then(this.getText)
+      .catch(err => console.error(err));
+  }
+
   render () {
+
+    const { ocrResult } = this.state;
+
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Double tap R on your keyboard to reload,{'\n'}
-          Shake or press menu button for dev menu
-        </Text>
+        {ocrResult ? (
+          <Text>
+            {ocrResult}
+          </Text>
+        ) : ( 
+          <Camera
+            ref={(cam) => {
+              this.camera = cam;
+            }}
+            style={styles.preview}
+            aspect={Camera.constants.Aspect.fill}
+          >
+            <TouchableOpacity onPress={this.takePicture.bind(this)}>
+              <Text style={styles.capture}>[CAPTURE]</Text>
+            </TouchableOpacity>
+          </Camera>
+        ) }
       </View>
     );
   }
@@ -30,16 +76,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
+  preview: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
