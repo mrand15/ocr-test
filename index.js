@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import Camera from 'react-native-camera';
 import RNTesseractOcr from 'react-native-tesseract-ocr';
+
+
+const test = require('asset:/tessdata/eng.traineddata');
 
 export default class ocrTest extends Component {
 
